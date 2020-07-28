@@ -3,7 +3,7 @@ from discord.ext import commands
 import traceback
 import datetime
 
-TOKEN = "NzM1ODIyNjYzMTY3MTE1MzI1.Xxl6Bg.fbaXzdJY7TIRFtZbFNC0cNwip1U"
+TOKEN = "NzM1ODIyNjYzMTY3MTE1MzI1.Xxl2QQ.r24Xtl51z2ble9gV419fnbIxUaI"
 
 
 class MemberObserver(commands.Bot):
@@ -27,7 +27,18 @@ class MemberObserver(commands.Bot):
                 after
             )
             footer_str = "ステータスの変更"
+        elif isinstance(after.activity, discord.Spotify):
+            print(repr(after.activity.duration))
+            update_str = "{0}分{1}秒".format(
+                after.activity.duration["minutes"], after.activity.duration["seconds"]
+            )
+            msg = "__**{}** / {}__を再生中".format(
+                after.activity.title, after.activity.artist
+            )
+            footer_str = "Spotifyステータスの変更"
         elif not before.activity == after.activity:
+            print(after.activity)
+            print(type(after.activity))
             before_act_str = (
                 before.activity.name if before.activity else before.activity
             )
@@ -43,6 +54,11 @@ class MemberObserver(commands.Bot):
                 **{0.name}**が**{1}**を開始しました.
                 """.format(
                     after, after_act_str
+                )
+                msg += (
+                    "({0})".format(after.activity.details)
+                    if after.activity.details
+                    else ""
                 )
             update_str = "**{}** -> **{}**".format(before_act_str, after_act_str)
             footer_str = "ゲームアクティビティの変更"
