@@ -8,8 +8,9 @@ import sys
 
 
 class MemberObserver(commands.Bot):
-    def __init__(self, command_prefix):
+    def __init__(self, command_prefix, chids: dict):
         super().__init__(command_prefix)
+        self.chids = chids
 
     async def on_ready(self):
         pass
@@ -19,6 +20,7 @@ class MemberObserver(commands.Bot):
         dt_now = datetime.datetime.now()
         dt_now_str = dt_now.strftime("%Y-%m-%d %H:%M:%S")
         member_avatar_url = str(after.avatar_url)
+        temp_chid = self.chids["status"]
 
         if not before.status == after.status:
             update_str = "**{}** -> **{}**".format(before.status, after.status)
@@ -37,6 +39,7 @@ class MemberObserver(commands.Bot):
                 after.activity.title, after.activity.artist
             )
             footer_str = "Spotifyステータスの変更"
+            temp_chid = self.chids["spotify"]
         elif not before.activity == after.activity:
             print(after.activity)
             print(type(after.activity))
@@ -72,7 +75,7 @@ class MemberObserver(commands.Bot):
         msg_embed.set_thumbnail(url=member_avatar_url)
         msg_embed.set_footer(text=footer_str)
 
-        not_channel = self.get_channel(735828665438306365)
+        not_channel = self.get_channel(temp_chid)
         await not_channel.send(embed=msg_embed)
 
     @commands.Cog.listener()
@@ -129,7 +132,7 @@ class MemberObserver(commands.Bot):
         msg_embed.set_thumbnail(url=member_avatar_url)
         msg_embed.set_footer(text=footer_str)
 
-        not_channel = self.get_channel(735894701139296277)
+        not_channel = self.get_channel(self.chids["voice"])
         await not_channel.send(embed=msg_embed)
 
 
@@ -137,18 +140,28 @@ def main():
     if not os.path.exists("./token.ini"):
         token = input("token: ")
         config = configparser.ConfigParser()
-        section = "botinfo"
-        config.add_section(section)
-        config.set(section, "token", token)
+        token_section = "botinfo"
+        config.add_section(token_section)
+        config.set(token_section, "token", token)
+
+        id_status_update_channel = input("status_update_channel_id: ")
+        id_voice_status_update_channel = input("voice_update_channel_id: ")
+        id_spotify_update_channel = input("spotify_update_channel_id: ")
+        chid_section = "chids"
+        config.add_section(chid_section)
+        config.set(chid_section, "status", id_status_update_channel)
+        config.set(chid_section, "voice", id_voice_status_update_channel)
+        config.set(chid_section, "spotify", id_spotify_update_channel)
         with open("./token.ini", "w") as f:
             config.write(f)
     else:
         config = configparser.ConfigParser()
         config.read("./token.ini")
-        section = "botinfo"
-        token = config.get(section, "token")
+        token_section = "botinfo"
+        token = config.get(token_section, "token")
+    chid_dict = dict(config.items("chids"))
 
-    mo = MemberObserver(command_prefix="!")
+    mo = MemberObserver(command_prefix="!", chids=chid_dict)
     mo.run(token)
 
 
