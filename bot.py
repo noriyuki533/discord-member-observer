@@ -2,8 +2,9 @@ import discord
 from discord.ext import commands
 import traceback
 import datetime
-
-TOKEN = "NzM1ODIyNjYzMTY3MTE1MzI1.Xxl2QQ.r24Xtl51z2ble9gV419fnbIxUaI"
+import configparser
+import os
+import sys
 
 
 class MemberObserver(commands.Bot):
@@ -133,8 +134,22 @@ class MemberObserver(commands.Bot):
 
 
 def main():
+    if not os.path.exists("./token.ini"):
+        token = input("token: ")
+        config = configparser.ConfigParser()
+        section = "botinfo"
+        config.add_section(section)
+        config.set(section, "token", token)
+        with open("./token.ini", "w") as f:
+            config.write(f)
+    else:
+        config = configparser.ConfigParser()
+        config.read("./token.ini")
+        section = "botinfo"
+        token = config.get(section, "token")
+
     mo = MemberObserver(command_prefix="!")
-    mo.run(TOKEN)
+    mo.run(token)
 
 
 if __name__ == "__main__":
