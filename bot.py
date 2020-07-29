@@ -22,6 +22,7 @@ class MemberObserver(commands.Bot):
         member_avatar_url = str(after.avatar_url)
         temp_chid = self.chids["status"]
 
+        # ステータスの変更
         if not before.status == after.status:
             update_str = "**{}** -> **{}**".format(before.status, after.status)
             msg = """
@@ -30,6 +31,7 @@ class MemberObserver(commands.Bot):
                 after
             )
             footer_str = "ステータスの変更"
+        # Spotifyステータスの変更
         elif isinstance(after.activity, discord.Spotify):
             print(repr(after.activity.duration))
             update_str = "{0}分{1}秒".format(
@@ -40,31 +42,45 @@ class MemberObserver(commands.Bot):
             )
             footer_str = "Spotifyステータスの変更"
             temp_chid = self.chids["spotify"]
+        # ゲームアクティビティの変更
         elif not before.activity == after.activity:
             print(after.activity)
             print(type(after.activity))
+            print(before.activity.name, after.activity.name)
             before_act_str = (
                 before.activity.name if before.activity else before.activity
             )
             after_act_str = after.activity.name if after.activity else after.activity
+
+            # ゲームアクティビティ終了時
             if not after.activity:
                 msg = """
                 **{0.name}**が**{1}**を終了しました.
                 """.format(
                     before, before_act_str
                 )
-            else:
+                update_str = "**{}** -> **{}**".format(before_act_str, after_act_str)
+            # ゲームアクティビティ変更時(同一ゲーム)
+            elif before.activity.name == after.activity.name:
+                if not after.activity.details:
+                    return
+                msg = """
+                __詳細__:\n{0}
+                """.format(
+                    after.activity.details
+                )
+                update_str = "**{}**".format(after_act_str)
+            # ゲームアクティビティ開始時
+            elif not before.activity or not (before.activity == after.activity):
                 msg = """
                 **{0.name}**が**{1}**を開始しました.
                 """.format(
                     after, after_act_str
                 )
-                msg += (
-                    "({0})".format(after.activity.details)
-                    if after.activity.details
-                    else ""
-                )
-            update_str = "**{}** -> **{}**".format(before_act_str, after_act_str)
+                update_str = "**{}** -> **{}**".format(before_act_str, after_act_str)
+            else:
+                return
+
             footer_str = "ゲームアクティビティの変更"
         else:
             return
@@ -75,7 +91,8 @@ class MemberObserver(commands.Bot):
         msg_embed.set_thumbnail(url=member_avatar_url)
         msg_embed.set_footer(text=footer_str)
 
-        not_channel = self.get_channel(temp_chid)
+        not_channel = self.get_channel(int(temp_chid))
+        print(not_channel, int(temp_chid))
         await not_channel.send(embed=msg_embed)
 
     @commands.Cog.listener()
@@ -132,7 +149,7 @@ class MemberObserver(commands.Bot):
         msg_embed.set_thumbnail(url=member_avatar_url)
         msg_embed.set_footer(text=footer_str)
 
-        not_channel = self.get_channel(self.chids["voice"])
+        not_channel = self.get_channel(int(self.chids["voice"]))
         await not_channel.send(embed=msg_embed)
 
 
