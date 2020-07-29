@@ -33,20 +33,19 @@ class MemberObserver(commands.Bot):
             footer_str = "ステータスの変更"
         # Spotifyステータスの変更
         elif isinstance(after.activity, discord.Spotify):
-            print(repr(after.activity.duration))
-            update_str = "{0}分{1}秒".format(
-                after.activity.duration["minutes"], after.activity.duration["seconds"]
-            )
-            msg = "__**{}** / {}__を再生中".format(
-                after.activity.title, after.activity.artist
+            total_sec = after.activity.duration.total_seconds()
+            minutes = int(total_sec // 60 % 60)
+            seconds = int(total_sec % 60)
+            update_str = "{0}".format(after.activity.album)
+            msg = "__**{0}** / {1}__\n({2})を再生中".format(
+                after.activity.title,
+                after.activity.artist,
+                "{0}分{1}秒".format(minutes, seconds),
             )
             footer_str = "Spotifyステータスの変更"
             temp_chid = self.chids["spotify"]
         # ゲームアクティビティの変更
         elif not before.activity == after.activity:
-            print(after.activity)
-            print(type(after.activity))
-            print(before.activity.name, after.activity.name)
             before_act_str = (
                 before.activity.name if before.activity else before.activity
             )
@@ -92,7 +91,6 @@ class MemberObserver(commands.Bot):
         msg_embed.set_footer(text=footer_str)
 
         not_channel = self.get_channel(int(temp_chid))
-        print(not_channel, int(temp_chid))
         await not_channel.send(embed=msg_embed)
 
     @commands.Cog.listener()
