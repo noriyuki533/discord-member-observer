@@ -7,7 +7,7 @@ import os
 import sys
 
 def get_jst_dtnow_str():
-    JST = datetime.timezone(timedelta(hours=+9), 'JST')
+    JST = datetime.timezone(datetime.timedelta(hours=+9), 'JST')
     dtnow_jst = datetime.datetime.now(JST)
     return dtnow_jst.strftime("%Y-%m-%d %H:%M:%S")
 
