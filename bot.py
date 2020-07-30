@@ -6,10 +6,12 @@ import configparser
 import os
 import sys
 
+
 def get_jst_dtnow_str():
-    JST = datetime.timezone(datetime.timedelta(hours=+9), 'JST')
+    JST = datetime.timezone(datetime.timedelta(hours=+9), "JST")
     dtnow_jst = datetime.datetime.now(JST)
     return dtnow_jst.strftime("%Y-%m-%d %H:%M:%S")
+
 
 class MemberObserver(commands.Bot):
     def __init__(self, command_prefix, chids: dict):
@@ -144,7 +146,7 @@ class MemberObserver(commands.Bot):
             return
 
         msg_embed = discord.Embed()
-        msg_embed.title = "[{}]".format(get_jst_dtnow_str)
+        msg_embed.title = "[{}]".format(get_jst_dtnow_str())
         msg_embed.add_field(name=update_str, value=msg)
         msg_embed.set_thumbnail(url=member_avatar_url)
         msg_embed.set_footer(text=footer_str)
