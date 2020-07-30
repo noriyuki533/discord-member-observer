@@ -24,12 +24,15 @@ class MemberObserver(commands.Bot):
 
         # ステータスの変更
         if not before.status == after.status:
+            print(after.is_on_mobile())
             update_str = "**{}** -> **{}**".format(before.status, after.status)
             msg = """
             **{0.name}**が**{0.status}**になりました.
             """.format(
                 after
             )
+            if after.is_on_mobile():
+                msg += "(モバイル)"
             footer_str = "ステータスの変更"
         # Spotifyステータスの変更
         elif isinstance(after.activity, discord.Spotify):
@@ -60,7 +63,7 @@ class MemberObserver(commands.Bot):
                 )
                 update_str = "**{}** -> **{}**".format(before_act_str, after_act_str)
             # ゲームアクティビティ変更時(同一ゲーム)
-            elif before.activity.name == after.activity.name:
+            elif before.activity and before.activity.name == after.activity.name:
                 if not after.activity.details:
                     return
                 msg = """
