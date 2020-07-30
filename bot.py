@@ -26,7 +26,6 @@ class MemberObserver(commands.Bot):
 
         # ステータスの変更
         if not before.status == after.status:
-            print(after.is_on_mobile())
             update_str = "**{}** -> **{}**".format(before.status, after.status)
             msg = """
             **{0.name}**が**{0.status}**になりました.
